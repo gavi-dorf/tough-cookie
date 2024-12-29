@@ -541,4 +541,22 @@ vows
       }
     }
   })
+  .addBatch({
+    "Test that attempts to use setCookie for prototype pollution fail": {
+      topic: function () {
+        var cookiejar = new tough.CookieJar(undefined, { rejectPublicSuffixes: false });
+        cookiejar.setCookie(
+          "Domain=__proto__; Path=/exploited-path",
+          "https://__proto__/",
+          {},
+          () => { }
+        );
+        return cookiejar;
+      },
+      "should not pollute prototype": function (cookiejar) {
+        var blankObject = {};
+        assert(blankObject["/exploited-path"] == null)
+      }
+    }
+  })
   .export(module);
